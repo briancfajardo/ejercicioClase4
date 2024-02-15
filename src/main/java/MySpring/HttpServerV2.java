@@ -2,8 +2,8 @@ package MySpring;
 
 import MySpring.pruebasAnotaciones.Component;
 import MySpring.pruebasAnotaciones.GetMapping;
-import MySpring.pruebasAnotaciones.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,21 +12,20 @@ import static java.lang.Class.forName;
 public class HttpServerV2 {
     static Map<String, Method> componentes = new HashMap<>();
 
-    public static void main(String[] args) throws ClassNotFoundException {
+    public static void main(String[] args) throws ClassNotFoundException, InvocationTargetException, IllegalAccessException {
         //1. Cargar los componentes anotados con @component
         //Para el primer prototipo los leeré de la línea de comandos
         //Para la entrega final los deben leer del disco
 
-        Class c = Class.forName(args[0]);
+        Class<?> c = Class.forName(args[0]);
 
         if (c.isAnnotationPresent(Component.class)) {
             //2. Almacenar todos los métodos en una estructura llave valor
             //La llave será el path del web service y el valor son métodos
             //Todos lo métodos serán estáticos
-            int passed = 0, failed = 0;
             for (Method m : Class.forName(args[0]).getMethods()) {
                 if (m.isAnnotationPresent(GetMapping.class)) {
-                    componentes.put(m.getDefaultValue().toString(), m);
+                    componentes.put(m.getAnnotation(GetMapping.class).value(), m);
                 }
             }
 
@@ -36,11 +35,12 @@ public class HttpServerV2 {
         // Igualmente debe pasar parámetros. Implementelos.
 
         String pathDelGet = "/components/hello";
+        String queryValue = "Camilo";
 
-        Method m = componentes.get(pathDelGet.substring(10));
+        Method m = componentes.get(pathDelGet.substring(11));
 
         if(m != null) {
-            //Ejecute
+            System.out.println("Salida: "+ m.invoke(null, queryValue));
         }
 
     }
